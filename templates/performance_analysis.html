@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}Performance Analysis{% endblock %}
+{% block content %}
+<div class="animate-fade-in">
+    <h1 class="text-4xl font-semibold text-dark-gray text-center mb-8">Performance Analysis</h1>
+    
+    <!-- Custom Model Training Section -->
+    <div class="bg-white rounded-xl shadow-sm p-8 mb-10 hover-scale">
+        <h3 class="text-2xl font-medium text-dark-gray mb-6">Train Custom Model</h3>
+        <form method="POST" action="/performance_analysis" enctype="multipart/form-data">
+            <div class="mb-6">
+                <label for="dataset" class="block text-medium-gray font-medium">Upload Dataset (ZIP for YOLO or COCO format)</label>
+                <input type="file" name="dataset" class="w-full mt-2 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 bg-gray-50" accept=".zip,.json" required>
+            </div>
+            <div class="mb-6">
+                <label for="model_type" class="block text-medium-gray font-medium">Select Model</label>
+                <select name="model_type" class="w-full mt-2 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 bg-gray-50" required>
+                    <option value="yolo">YOLO</option>
+                    <option value="frcnn">Faster R-CNN</option>
+                </select>
+            </div>
+            <div class="mb-6">
+                <label for="epochs" class="block text-medium-gray font-medium">Training Epochs</label>
+                <input type="number" name="epochs" class="w-full mt-2 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 bg-gray-50" value="10" min="1" max="100" required>
+            </div>
+            <button type="submit" class="w-full bg-dark-gray text-white p-2 rounded-lg btn-transition bg-dark-gray-hover">Train Model</button>
+        </form>
+        {% if error %}
+        <p class="mt-4 text-red-400 text-center">{{ error }}</p>
+        {% endif %}
+        {% if success %}
+        <p class="mt-4 text-green-600 text-center">{{ success }}</p>
+        {% endif %}
+    </div>
+
+    <!-- Existing Model Comparison Section -->
+    {% if analysis %}
+    <div class="bg-white rounded-xl shadow-sm p-8 mb-10 hover-scale">
+        <h3 class="text-2xl font-medium text-dark-gray mb-6">Model Comparison</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <table class="w-full text-left text-medium-gray">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="p-3 rounded-tl-lg">Metric</th>
+                            <th class="p-3">YOLO</th>
+                            <th class="p-3 rounded-tr-lg">Faster R-CNN</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-t border-gray-200 hover:bg-gray-50">
+                            <td class="p-3">mAP (Mean IoU)</td>
+                            <td class="p-3">{{ analysis.get('yolo', {}).get('mAP', 0) | float | round(2) }}</td>
+                            <td class="p-3">{{ analysis.get('frcnn', {}).get('mAP', 0) | float | round(2) }}</td>
+                        </tr>
+                        <tr class="border-t border-gray-200 hover:bg-gray-50">
+                            <td class="p-3">Inference Time (s)</td>
+                            <td class="p-3">{{ analysis.get('yolo', {}).get('inference_time', 0) | float | round(3) }}</td>
+                            <td class="p-3">{{ analysis.get('frcnn', {}).get('inference_time', 0) | float | round(3) }}</td>
+                        </tr>
+                        <tr class="border-t border-gray-200 hover:bg-gray-50">
+                            <td class="p-3">Throughput (FPS)</td>
+                            <td class="p-3">{{ analysis.get('yolo', {}).get('throughput', 0) | float | round(1) }}</td>
+                            <td class="p-3">{{ analysis.get('frcnn', {}).get('throughput', 0) | float | round(1) }}</td>
+                        </tr>
+                        <tr class="border-t border-gray-200 hover:bg-gray-50">
+                            <td class="p-3">Precision</td>
+                            <td class="p-3">{{ analysis.get('yolo', {}).get('precision', 0) | float | round(2) }}</td>
+                            <td class="p-3">{{ analysis.get('frcnn', {}).get('precision', 0) | float | round(2) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <h4 class="text-xl font-medium text-dark-gray mb-4">Speed vs Accuracy</h4>
+                <canvas id="speedVsAccuracyChart" class="w-full"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm p-8">
+        <h3 class="text-2xl font-medium text-dark-gray mb-6">Detection History</h3>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-medium-gray">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="p-3 rounded-tl-lg">Time</th>
+                        <th class="p-3">Model</th>
+                        <th class="p-3">Image</th>
+                        <th class="p-3">Inference Time (s)</th>
+                        <th class="p-3">mAP</th>
+                        <th class="p-3">Precision</th>
+                        <th class="p-3">Throughput (FPS)</th>
+                        <th class="p-3 rounded-tr-lg">Objects Detected</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in history %}
+                    <tr class="border-t border-gray-200 hover:bg-gray-50 transition duration-150">
+                        <td class="p-3">{{ entry['detection_time'] }}</td>
+                        <td class="p-3">{{ entry['model_type'] }}</td>
+                        <td class="p-3"><img src="{{ entry['image_path'] }}" class="w-20 rounded-lg hover-scale" alt="Detection"></td>
+                        <td class="p-3">{{ entry['inference_time'] | round(3) }}</td>
+                        <td class="p-3">{{ entry['mAP'] | round(2) }}</td>
+                        <td class="p-3">{{ entry['precision'] | round(2) }}</td>
+                        <td class="p-3">{{ entry['throughput'] | round(1) if entry['throughput'] else 'N/A' }}</td>
+                        <td class="p-3">
+                            {% set objects = entry['detected_objects'] | from_json %}
+                            {% for obj in objects %}
+                            <span class="block">{{ obj['label'] }} ({{ obj['confidence'] }}, IoU: {{ obj['iou'] }})</span>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-center text-medium-gray text-lg mt-8">No performance data available yet. Run some detections to see results.</p>
+    {% endif %}
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if analysis %}
+        const ctx = document.getElementById('speedVsAccuracyChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['YOLO', 'Faster R-CNN'],
+                datasets: [
+                    {
+                        label: 'Inference Time (s)',
+                        data: [
+                            {{ analysis.get('yolo', {}).get('inference_time', 0) | default(0) }},
+                            {{ analysis.get('frcnn', {}).get('inference_time', 0) | default(0) }}
+                        ],
+                        borderColor: '#4a4a4a',
+                        fill: false,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'mAP (Accuracy)',
+                        data部分太长了，请用代码块补充完整。
+
+```python
+                        data: [
+                            {{ analysis.get('yolo', {}).get('mAP', 0) | default(0) }},
+                            {{ analysis.get('frcnn', {}).get('mAP', 0) | default(0) }}
+                        ],
+                        border R-CNN', '#666666',
+                        fill: false,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                scales: { y: { beginAtZero: true } },
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+        {% endif %}
+    });
+</script>
+{% endblock %}

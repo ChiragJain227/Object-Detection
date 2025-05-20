@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<div class="text-center animate-fade-in">
+    <h1 class="text-4xl font-semibold text-dark-gray mb-6">Welcome, {{ session['username'] }}</h1>
+    <p class="text-lg text-medium-gray mb-10">Explore object detection with a modern interface.</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+        <a href="{{ url_for('image_detection') }}" class="bg-white p-6 rounded-xl shadow-sm hover-scale text-medium-gray hover:text-dark-gray transition duration-300">
+            <h3 class="text-xl font-medium">Image Detection</h3>
+            <p class="text-sm mt-2">Upload an image to detect objects.</p>
+        </a>
+        <a href="{{ url_for('realtime_detection') }}" class="bg-white p-6 rounded-xl shadow-sm hover-scale text-medium-gray hover:text-dark-gray transition duration-300">
+            <h3 class="text-xl font-medium">Real-Time Detection</h3>
+            <p class="text-sm mt-2">Detect objects live via webcam.</p>
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Image Detection{% endblock %}
+{% block content %}
+<div class="animate-fade-in">
+    <h1 class="text-4xl font-semibold text-dark-gray text-center mb-8">Image Detection</h1>
+    <div class="bg-white rounded-xl shadow-sm p-8 mb-10">
+        <form method="POST" action="/image_detection" enctype="multipart/form-data">
+            <div class="mb-6">
+                <label for="image" class="block text-medium-gray font-medium">Upload Image</label>
+                <input type="file" name="image" class="w-full mt-2 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 bg-gray-50" accept="image/*" required>
+            </div>
+            <div class="mb-6">
+                <label for="model" class="block text-medium-gray font-medium">Select Model</label>
+                <select name="model" class="w-full mt-2 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 bg-gray-50">
+                    <option value="yolo">YOLO</option>
+                    <option value="frcnn">Faster R-CNN</option>
+                </select>
+            </div>
+            <button type="submit" class="w-full bg-dark-gray text-white p-2 rounded-lg btn-transition bg-dark-gray-hover">Detect Objects</button>
+        </form>
+    </div>
+    {% if result_image %}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="bg-white rounded-xl shadow-sm p-6 hover-scale">
+            <img src="{{ result_image }}" class="w-full rounded-lg" alt="Result">
+            <div class="mt-6 space-y-3 text-medium-gray">
+                <p><span class="font-medium text-dark-gray">Mean IoU (mAP):</span> {{ "%.2f" % iou }}</p>
+                <p><span class="font-medium text-dark-gray">Inference Time:</span> {{ "%.3f" % inference_time }} seconds</p>
+                <p><span class="font-medium text-dark-gray">Precision:</span> {{ "%.2f" % precision }} ({{ (precision * 100) | round }}%)</p>
+                <p><span class="font-medium text-dark-gray">Accuracy:</span> {{ "%.2f" % accuracy }} ({{ (accuracy * 100) | round }}%)</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <h4 class="text-xl font-medium text-dark-gray mb-4">Detected Objects</h4>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-medium-gray">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="p-3 rounded-tl-lg">Object</th>
+                            <th class="p-3">Confidence</th>
+                            <th class="p-3">IoU</th>
+                            <th class="p-3 rounded-tr-lg">Precision</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for obj in objects %}
+                        <tr class="border-t border-gray-200 hover:bg-gray-50 transition duration-150">
+                            <td class="p-3">{{ obj.label }}</td>
+                            <td class="p-3">{{ obj.confidence }}</td>
+                            <td class="p-3">{{ obj.iou }}</td>
+                            <td class="p-3">{{ obj.precision }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

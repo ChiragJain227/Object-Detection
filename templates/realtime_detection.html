@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Real-Time Detection{% endblock %}
+{% block content %}
+<div class="animate-fade-in">
+    <h1 class="text-4xl font-semibold text-mint-700 text-center mb-8">Real-Time Detection</h1>
+    <div class="bg-white rounded-xl shadow-sm p-8">
+        <label for="realtime_model" class="block text-lavender-600 font-medium mb-2">Select Model</label>
+        <select id="realtime_model" class="w-full md:w-1/4 p-2 border border-lavender-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-mint-400 bg-cream-50 mb-6" onchange="updateVideo()">
+            <option value="yolo">YOLO</option>
+            <option value="frcnn">Faster R-CNN</option>
+        </select>
+        <img id="video_feed" class="w-full rounded-lg" src="" alt="Video Feed">
+    </div>
+</div>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+{% endblock %}

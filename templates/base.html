@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %} - Object Detection</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body class="bg-light-gray font-poppins min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex flex-col items-center">
+            <a href="{{ url_for('index') }}" class="text-2xl font-semibold text-dark-gray hover:text-medium-gray transition duration-200 mb-4">Object Detection</a>
+            <nav class="flex space-x-8">
+                <a href="{{ url_for('index') }}" class="text-medium-gray hover:text-dark-gray transition duration-200">Home</a>
+                <a href="{{ url_for('image_detection') }}" class="text-medium-gray hover:text-dark-gray transition duration-200">Image Detection</a>
+                <a href="{{ url_for('realtime_detection') }}" class="text-medium-gray hover:text-dark-gray transition duration-200">Real-Time</a>
+                <a href="{{ url_for('performance_analysis') }}" class="text-medium-gray hover:text-dark-gray transition duration-200">Analysis</a>
+                <a href="{{ url_for('logout') }}" class="text-medium-gray hover:text-dark-gray transition duration-200">Logout</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-6 py-10">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Loading Spinner -->
+    <div id="loading" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-dark-gray"></div>
+    </div>
+
+    <script>
+        document.addEventListener('submit', function(e) {
+            if (e.target.tagName === 'FORM') {
+                document.getElementById('loading').classList.remove('hidden');
+            }
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
