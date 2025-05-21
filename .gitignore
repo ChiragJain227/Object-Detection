@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.jpg
+*.pt
+.env
+.venv
+env/
