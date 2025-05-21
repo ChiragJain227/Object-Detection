@@ -4,6 +4,6 @@ Pillow==10.4.0
 numpy==1.26.4
 mysql-connector-python==8.4.0
 ultralytics==8.2.72
-torch==2.6.0+cpu
-torchvision==0.21.0+cpu
+torch==2.6.0
+torchvision==0.21.0
 ensemble-boxes==1.0.9
